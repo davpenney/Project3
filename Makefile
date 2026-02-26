@@ -1,0 +1,64 @@
+# Bibleajax program
+# Bob Kasper, MVNU Computer Science
+# updated January 2020 to use
+# c++11 compiler option, current paths on cs.mvnu.edu
+
+# This is a Makefile for the Bible web app demo program.
+# Copy this directory to a location within your home directory.
+# Change the USER name value below to your own user name.
+# Then use "make" to build the server program,
+# and deploy it to the live web server directory.
+# To test the program, go to http://cs.mvnu.edu/class/csc3004/USER/
+# and open the bibleajax.html link.
+
+# TODO: Must replace "username" by your username
+USER= davpenney
+
+# Use GNU C++ compiler with C++11 standard
+CC= g++
+CFLAGS= -g -std=c++11 -I /home/$(USER)/csc3004/Project3
+
+all:	bibleajax.cgi PutCGI PutHTML testreader
+
+# TODO: For bibleajax.cgi, add dependencies to include
+# compiled classes from Project 1 to be linked into the executable program
+bibleajax.cgi:	bibleajax.o Ref.o Verse.o Bible.o
+	$(CC) $(CFLAGS) -o bibleajax.cgi bibleajax.o Ref.o Verse.o Bible.o -lcgicc
+	# -l option is necessary to link with cgicc library
+
+# main program to handle AJAX/CGI requests for Bible references
+bibleajax.o:	bibleajax.cpp Ref.h Verse.h Bible.h
+	$(CC) $(CFLAGS) -c bibleajax.cpp
+
+# TODO: copy targets to build classes from Project 1:
+# Bible.o, Ref.o, Verse.o
+Ref.o : Ref.h Ref.cpp
+	$(CC) $(CFLAGS) -c Ref.cpp
+
+Verse.o : Ref.h Verse.h Verse.cpp
+	$(CC) $(CFLAGS) -c Verse.cpp
+
+Bible.o : Ref.h Verse.h Bible.h Bible.cpp
+	$(CC) $(CFLAGS) -c Bible.cpp
+
+testreader.o : Ref.h Verse.h Bible.h testreader.cpp
+	$(CC) $(CFLAGS) -c testreader.cpp
+
+testreader: Ref.o Verse.o Bible.o testreader.o
+	$(CC) $(CFLAGS) -o testreader Ref.o Verse.o Bible.o testreader.o
+
+PutCGI:	bibleajax.cgi
+	chmod 755 bibleajax.cgi
+	cp bibleajax.cgi /var/www/html/class/csc3004/$(USER)/cgi-bin
+
+	echo "Current contents of your cgi-bin directory: "
+	ls -l /var/www/html/class/csc3004/$(USER)/cgi-bin/
+
+PutHTML:
+	cp bibleindex.html /var/www/html/class/csc3004/$(USER)
+
+	echo "Current contents of your HTML directory: "
+	ls -l /var/www/html/class/csc3004/$(USER)
+
+clean:
+	rm *.o core bibleajax.cgi
