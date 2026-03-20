@@ -35,36 +35,48 @@ Bible::Bible(const string s) { infile = s; buildRefIndex(infile); }
 Verse Bible::lookup(Ref ref, int numVerses, LookupResult& status)
 {
    // TODO: scan the file to retrieve the line that holds ref ...
+
    ifstream instream(infile);
 
-   if (!instream) { status = OTHER; return Verse(); }
+   //Create index iterator to find the passed ref object
+   auto it = index.find(ref);
 
-   LookupResult nextStatus = SUCCESS; //creates a lookupresult object for the nextverse parameter
-   Verse aVerse;
-   bool verseFound = true;
+   /*if(it == index.end()){
+      status= OTHER;
+      return Verse();
+   }*/
 
-   while(nextStatus == SUCCESS && verseFound) { //repeats while a next verse exists
+   int byteNum = it->second;
 
-      aVerse = nextVerse(nextStatus); //sets the verse tp
-      if (ref == aVerse.getRef()) { verseFound = false; break; } //Compares ref objects to see if they match .
-   }
+   instream.seekg(byteNum);
+
+   string line;
+   getline(instream, line);
+
+   Verse verse(line);
+
+   ref.display();
+   Ref iteratorRef = it->first;
+
+   return verse;
 
    // update the status variable
    // placeholder until retrieval is attempted
    // create and return the verse object
    // default verse, to be replaced by a Verse object
    // that is constructed from a line in the file.
-   Verse addedVerse;
+
+   /*Verse addedVerse;
    string combinedVerses = aVerse.getVerse();
 
    for(int i = 1; i < numVerses; i++){ //Loops through to append requested added verses to string
       if(nextStatus == OTHER){ break; }
-      addedVerse = nextVerse(nextStatus);
+      addedVerse = next(nextStatus);
       combinedVerses.append("<br>");
       combinedVerses.append(addedVerse.getVerse());
    }
 
-   return(Verse(combinedVerses));
+   return(Verse(combinedVerses));*/
 }
 
 void Bible::buildRefIndex (string filename) {
@@ -134,11 +146,42 @@ void Bible::display()
 // OPTIONAL: Return the reference after the given ref
 Ref Bible::next(const Ref ref, LookupResult& status)
 {
-   return ref;
+   auto it = index.find(ref);
+
+   if(it == index.end()){
+      status= OTHER;
+      return Ref();
+   }
+
+   it++;
+
+   if(it == index.end()){
+      status = OTHER;
+      return Ref();
+   }else{
+      status = SUCCESS;
+      return it->first;
+   }
 }
 
 // OPTIONAL: Return the reference before the given ref
 Ref Bible::prev(const Ref ref, LookupResult& status)
 {
-   return ref;
+   auto it = index.find(ref);
+
+   if(it == index.end()){
+      status= OTHER;
+      return Ref();
+   }
+
+   it--;
+
+   if(it == index.end()){
+      status = OTHER;
+      return Ref();
+   }else{
+      status = SUCCESS;
+      return it->first;
+   }
 }
+

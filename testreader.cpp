@@ -30,7 +30,33 @@ int main (int argc, char *argv[])
 
    cout << "Using Bible from: ";
    webBible.display();
-//   cout << "Byte offset for Genesis 1:1: " << webBible.index[Ref(1,1,1)] << endl;
+
+   if(argc < 4){
+      cout << "Enter 4 integers for book, chapter, verse, and added verses to find: " << flush;
+      cin >> bookNum >> chapterNum >> verseNum >> numVerses;
+   }else if(argc == 5){
+      bookNum = stoi(argv[1]);
+      chapterNum = stoi(argv[2]);
+      verseNum = stoi(argv[3]);
+      numVerses = stoi(argv[4]);
+   }else if(argc == 4){
+      bookNum = stoi(argv[1]);
+      chapterNum = stoi(argv[2]);
+      verseNum = stoi(argv[3]);
+      numVerses = 1;
+   }
+
+   Ref ref(bookNum, chapterNum, verseNum);
+   cout << "Looking up reference: ";
+   ref.display();
+   cout << endl;
+
+   verse = webBible.lookup(ref, numVerses, result);
+   cout << "Result status: " << result << endl;
+   verse.display();
+   cout << endl;
+
    return 0;
 }
+
 

@@ -63,7 +63,7 @@ Ref::Ref(const string s)
 
 // Construct Ref from three integers
 Ref::Ref(const int b, const int c, const int v) 
-{ 	
+{
    book = b;
    chapter = c;
    verse = v;
@@ -71,7 +71,7 @@ Ref::Ref(const int b, const int c, const int v)
 
 //Construct Ref from four integers
 /*Ref::Ref(const int b, const int c, const int v, const int e) 
-{ 	
+{
    book = b;
    chapter = c;
    verse = v;
@@ -98,15 +98,13 @@ bool Ref::operator==(const Ref & ref) const
 
 bool Ref::operator<(const Ref & ref) const
 {
-   if(book < ref.book){
-      return true;
-   }else if(chapter < ref.chapter){
-      return true;
-   }else if(verse < ref.verse){
-      return true;
-   }else{
-      return false;
-   }
+   if (book != ref.book)
+      return book < ref.book;
+
+   if (chapter != ref.chapter)
+      return chapter < ref.chapter;
+
+   return verse < ref.verse;
 }
 // OPTIONAL: define < and > comparisons
 
