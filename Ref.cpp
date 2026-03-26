@@ -1,4 +1,3 @@
-
 /* Ref class function definitions
  * Computer Science, MVNU
  * CSC-3004 Introduction to Software Development
@@ -6,7 +5,7 @@
  * NOTE: You may add code to this file, but do not
  * delete any code or delete any comments.
  *
- * STUDENT NAME: David Penney 
+ * STUDENT NAME: David Penney
  */
 
 #include "Ref.h"
@@ -23,13 +22,13 @@ using namespace std;
  */
 string GetNextToken(string& str, const string& delimiters = " ")
 {
-   // Skip delimiters at beginning                                          
+   // Skip delimiters at beginning
    string::size_type startPos = str.find_first_not_of(delimiters, 0);
-  
-   // Find position of delimiter at end of token                                           
+
+   // Find position of delimiter at end of token
    string::size_type endPos = str.find_first_of(delimiters, startPos);
 
-   // Found a token, remove it from string, and return it                       
+   // Found a token, remove it from string, and return it
    string next = str.substr(startPos, endPos - startPos);
    string rest = str.substr(endPos - startPos + 1, string::npos);
    str = rest;
@@ -39,22 +38,22 @@ string GetNextToken(string& str, const string& delimiters = " ")
 // Ref member functions
 
 // Default constructor
-Ref::Ref() {book = 0; chapter = 0; verse = 0; extra = 1;}  	
+Ref::Ref() {book = 0; chapter = 0; verse = 0; extra = 1;}
 
 // Parse constructor - receives a line "34:5:7 text"
 Ref::Ref(const string s)
-{ 
+{
    string rtext = s; // make local copy of string to avoid modifying parameter
    // parse the reference - notice, currently there is no error checking!
-    
+
    // Get book number
    string strbook = GetNextToken(rtext,":");
    book = atoi(strbook.c_str());
-    
+
    // Get the chapter number
    string strchap = GetNextToken(rtext,":");
    chapter = atoi(strchap.c_str());
-    
+
    // Get the verse number
    string strverse = GetNextToken(rtext," ");
    verse = atoi(strverse.c_str());
@@ -62,7 +61,7 @@ Ref::Ref(const string s)
 }
 
 // Construct Ref from three integers
-Ref::Ref(const int b, const int c, const int v) 
+Ref::Ref(const int b, const int c, const int v)
 {
    book = b;
    chapter = c;
@@ -70,7 +69,7 @@ Ref::Ref(const int b, const int c, const int v)
 }
 
 //Construct Ref from four integers
-/*Ref::Ref(const int b, const int c, const int v, const int e) 
+/*Ref::Ref(const int b, const int c, const int v, const int e)
 {
    book = b;
    chapter = c;

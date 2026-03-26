@@ -18,7 +18,7 @@ USER= davpenney
 CC= g++
 CFLAGS= -g -std=c++11 -I /home/$(USER)/csc3004/Project3
 
-all:	bibleajax.cgi PutCGI PutHTML testreader
+all:	bibleajax.cgi PutCGI PutHTML testreader sslookupserver sslookupclient
 
 # TODO: For bibleajax.cgi, add dependencies to include
 # compiled classes from Project 1 to be linked into the executable program
@@ -41,11 +41,26 @@ Verse.o : Ref.h Verse.h Verse.cpp
 Bible.o : Ref.h Verse.h Bible.h Bible.cpp
 	$(CC) $(CFLAGS) -c Bible.cpp
 
-testreader.o : Ref.h Verse.h Bible.h testreader.cpp
+testreader.o : Ref.h Verse.h Bible.h testreader.cpp fifo.h
 	$(CC) $(CFLAGS) -c testreader.cpp
 
-testreader: Ref.o Verse.o Bible.o testreader.o
-	$(CC) $(CFLAGS) -o testreader Ref.o Verse.o Bible.o testreader.o
+testreader: Ref.o Verse.o Bible.o testreader.o fifo.o
+	$(CC) $(CFLAGS) -o testreader Ref.o Verse.o Bible.o testreader.o fifo.o
+
+fifo.o: fifo.cpp fifo.h
+	$(CC) $(CFLAGS) -c fifo.cpp
+
+sslookupserver.o: sslookupserver.cpp fifo.h Bible.h Verse.h Ref.h
+	$(CC) $(CFLAGS) -c sslookupserver.cpp
+
+sslookupserver: sslookupserver.o fifo.o Bible.o Verse.o Ref.o
+	$(CC) $(CFLAGS) -o sslookupserver sslookupserver.o fifo.o Bible.o Verse.o Ref.o
+
+sslookupclient.o: sslookupclient.cpp fifo.h
+	$(CC) $(CFLAGS) -c sslookupclient.cpp
+
+sslookupclient: sslookupclient.o fifo.o
+	$(CC) $(CFLAGS) -o sslookupclient sslookupclient.o fifo.o
 
 PutCGI:	bibleajax.cgi
 	chmod 755 bibleajax.cgi

@@ -35,16 +35,20 @@ Bible::Bible(const string s) { infile = s; buildRefIndex(infile); }
 Verse Bible::lookup(Ref ref, int numVerses, LookupResult& status)
 {
    // TODO: scan the file to retrieve the line that holds ref ...
+   if(ref.getBook() == 0){
+      status = OTHER;
+      cout << "This don't exist!!!!";
+   }
 
    ifstream instream(infile);
 
    //Create index iterator to find the passed ref object
    auto it = index.find(ref);
 
-   /*if(it == index.end()){
+   if(it == index.end()){
       status= OTHER;
       return Verse();
-   }*/
+   }
 
    int byteNum = it->second;
 
@@ -150,7 +154,7 @@ Ref Bible::next(const Ref ref, LookupResult& status)
 
    if(it == index.end()){
       status= OTHER;
-      return Ref();
+      return Ref("1:1:1");
    }
 
    it++;

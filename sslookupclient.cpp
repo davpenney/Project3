@@ -27,16 +27,16 @@ string send_pipe = "request";
 
 int main()
 {
-   // prepare the response output,
-   // send required header before any other output
-   cout << "Content-Type: text/plain\n\n" << endl;
-
+   // prepare the response output:
    Fifo recfifo(receive_pipe);
    Fifo sendfifo(send_pipe);
 
    sendfifo.openwrite();
 
-   string lookup = "25:3:1";
+   string lookup;
+
+   cout << "Input a Bible verse to retrieve (x:x:x format): ";
+   cin >> lookup;
    // Call server to get results
    sendfifo.send(lookup);
 

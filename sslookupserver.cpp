@@ -19,6 +19,9 @@
 #include <sstream>
 #include <map>
 #include "fifo.h"
+#include "Bible.h"
+#include "Verse.h"
+#include "Ref.h"
 
 using namespace std;
 
@@ -33,23 +36,31 @@ int main()
    Fifo recfifo(receive_pipe);
    Fifo sendfifo(send_pipe);
 
+   //Create the Bible for the client to search
+   Bible webBible("/home/class/csc3004/Bibles/web-complete");
+   LookupResult result;
+   string reply;
+
    recfifo.openread(); // only open once
 
    // "infinite loop" for server: repeat each time a request is received
    while (true)
    {
-
+      //sendfifo.send("Enter a ReF YO!");
       /* Get a message from a client */
-      string searchVerse = recfifo.recv();
+      Ref searchVerse = recfifo.recv();
+
 
       sendfifo.openwrite();
-      string reply;
-      /* Send back the search term message */
-      reply = "YO YO YO I got the message";
-      sendfifo.send(reply);
-      cout << "Message received, sending reply..." << endl;
+      cout << "Requested Verse: ";
+      Verse verse = webBible.lookup(searchVerse, 1, result);
+      reply = verse.getVerse();
 
-      reply = "$end";
+      /* Send back the search term message */
+      sendfifo.send(reply);
+      cout << "\nSending results...\n" << endl;
+
+      string reply = "$end";
       sendfifo.send(reply);
       sendfifo.fifoclose();
       //recfifo.fifoclose();
