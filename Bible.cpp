@@ -34,53 +34,43 @@ Bible::Bible(const string s) { infile = s; buildRefIndex(infile); }
 // REQUIRED: lookup finds a given verse in this Bible
 Verse Bible::lookup(Ref ref, int numVerses, LookupResult& status)
 {
-   // TODO: scan the file to retrieve the line that holds ref ...
-   if(ref.getBook() == 0){
-      status = OTHER;
-      cout << "This don't exist!!!!";
-   }
-
    ifstream instream(infile);
+   string combinedVerses;
 
-   //Create index iterator to find the passed ref object
-   auto it = index.find(ref);
+   Ref currentRef = ref;
+   status = SUCCESS;
 
-   if(it == index.end()){
-      status= OTHER;
-      return Verse();
-   }
 
-   int byteNum = it->second;
+   for(int i = 0; i < numVerses; i++)
+   {
+      auto it = index.find(currentRef);
 
-   instream.seekg(byteNum);
+      if(it == index.end())
+      {
+          status = OTHER;
+          break;
+      }
+      if(status != SUCCESS) { return Verse(); }
 
-   string line;
-   getline(instream, line);
+      int byteNum = it->second;
 
-   Verse verse(line);
+      if(byteNum < 0 || byteNum > 1000) { return Verse(); }
 
-   ref.display();
-   Ref iteratorRef = it->first;
+      instream.seekg(byteNum);
 
-   return verse;
+      string line;
+      getline(instream, line);
 
-   // update the status variable
-   // placeholder until retrieval is attempted
-   // create and return the verse object
-   // default verse, to be replaced by a Verse object
-   // that is constructed from a line in the file.
+      if(line.empty()) { return Verse(); }
 
-   /*Verse addedVerse;
-   string combinedVerses = aVerse.getVerse();
-
-   for(int i = 1; i < numVerses; i++){ //Loops through to append requested added verses to string
-      if(nextStatus == OTHER){ break; }
-      addedVerse = next(nextStatus);
       combinedVerses.append("<br>");
-      combinedVerses.append(addedVerse.getVerse());
+      combinedVerses.append(line);
+
+      // move to next verse
+      currentRef = next(currentRef, status);
    }
 
-   return(Verse(combinedVerses));*/
+   return Verse(combinedVerses);
 }
 
 void Bible::buildRefIndex (string filename) {
@@ -154,14 +144,14 @@ Ref Bible::next(const Ref ref, LookupResult& status)
 
    if(it == index.end()){
       status= OTHER;
-      return Ref("1:1:1");
+      return ref;
    }
 
    it++;
 
    if(it == index.end()){
       status = OTHER;
-      return Ref();
+      return ref;
    }else{
       status = SUCCESS;
       return it->first;

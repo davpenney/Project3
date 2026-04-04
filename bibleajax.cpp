@@ -27,7 +27,7 @@
 #include <Bible.h>
 #include <Ref.h>
 #include <Verse.h>
-
+#include "fifo.h"
 
 /* Required libraries for AJAX to function */
 #include "/home/class/csc3004/cgicc/Cgicc.h"
@@ -36,6 +36,9 @@
 
 using namespace std;
 using namespace cgicc;
+
+string receive_pipe = "reply";
+string send_pipe = "request";
 
 int main()
 {
@@ -110,40 +113,68 @@ int main()
    /* TODO: PUT CODE HERE TO CALL YOUR BIBLE CLASS FUNCTIONS
     *        TO LOOK UP THE REQUESTED VERSES
     */
-   Bible bible("/home/class/csc3004/Bibles/web-complete");
-   Verse bibleVerse;
-   Ref ref(book->getIntegerValue(), chapterNum, verseNum);
-   LookupResult status;
+   //Bible bible("/home/class/csc3004/Bibles/web-complete");
+   //Verse bibleVerse;
+   //Ref ref(book->getIntegerValue(), chapterNum, verseNum);
+   //LookupResult status;
 
-   bibleVerse = bible.lookup(ref, nv->getIntegerValue(), status);
+
+   //bibleVerse = bible.lookup(ref, nv->getIntegerValue(), status);
    /* SEND BACK THE RESULTS
     * Finally we send the result back to the client on the standard output stream
     * in HTML text format.
     * This string will be inserted as is inside a container on the web page,
     * so we must include HTML formatting commands to make things look presentable!
     */
-
+   LookupResult status;
    if (validChapter && validVerse && validNumVerses)
    {
-      ref.display();
-      //cout << "<p>Your result: "
-        //   << " " << **chapter << ":" << **verse
-      cout << "<br>" << endl;
-      cout << bibleVerse.getVerse() << endl;
+      string lookup = to_string(book->getIntegerValue()) + ":" + to_string(chapterNum) + ":" + to_string(verseNum);
+
+      Fifo recfifo(receive_pipe);
+      Fifo sendfifo(send_pipe);
+
+      sendfifo.openwrite();
+
+      // Call server to get results
+      sendfifo.send(lookup);
+      sendfifo.send(to_string(numVerses));
+      recfifo.openread();
+
+      // output the response to the web page
+      string results = "";
+      int times = 0; // Counter for header lines
+      while (results != "$end")
+      {
+         results = recfifo.recv();
+         if (results != "$end")
+         {
+            cout << results << endl;
+            if (times++ > 2)
+            {
+               cout << "<br>";
+            }
+         }
+      }
+      cout << endl; // flush output when done
+
+      recfifo.fifoclose();
+      sendfifo.fifoclose();
+
    }
    else if(!validChapter)
    {
-      status = NO_CHAPTER;
-      bible.error(status, chapterNum);
+      cout << "Invalid Chapter Input";
+
    }
    else if(!validVerse)
    {
-      status = NO_VERSE;
-      bible.error(status, verseNum);
+      cout << "Invalid Verse Input";
    }
    else
    {
       cout << "<p>Invalid Input: <em>" << "(" << **book << " " << **chapter << ":" << **verse << ") does not exist." << "</em></p>" << endl;
    }
+
    return 0;
 }

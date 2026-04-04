@@ -49,11 +49,13 @@ int main()
       //sendfifo.send("Enter a ReF YO!");
       /* Get a message from a client */
       Ref searchVerse = recfifo.recv();
-
+      string numVerses = recfifo.recv();
 
       sendfifo.openwrite();
-      cout << "Requested Verse: ";
-      Verse verse = webBible.lookup(searchVerse, 1, result);
+      cout << "Requested Verse: " << searchVerse.getBook() << ":" << searchVerse.getChapter() << ":" << searchVerse.getVerse() 
+           << "-" << to_string(stoi(numVerses) + searchVerse.getVerse());
+
+      Verse verse = webBible.lookup(searchVerse, stoi(numVerses), result);
       reply = verse.getVerse();
 
       /* Send back the search term message */
